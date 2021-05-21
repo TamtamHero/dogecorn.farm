@@ -1,0 +1,85 @@
+@media only screen and (orientation: landscape) {
+  .Pad {
+    width: 40vw;
+    height: 40vh;
+    /* padding: 2vw; */
+  }
+  .tabs {
+    width: 40vw;
+  }
+  .tab {
+    padding: 2vh 5vh;
+  }
+}
+
+@media only screen and (orientation: portrait) {
+  .Pad {
+    width: 85vw;
+    height: 30vh;
+    padding: 2vw;
+  }
+  .tabs {
+    width: 40vh;
+  }
+  .tab {
+    padding: 2vw 5vw;
+  }
+}
+
+.Pad {
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background-color: #f3b562;
+  border-radius: 50px;
+  border: 4px solid #f0a138;
+  border-bottom-width: 20px;
+  border-top-left-radius: 20;
+  border-top-right-radius: 0;
+}
+
+.tabs {
+  display: flex;
+  z-index: 21;
+  position: relative;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.tab {
+  border-radius: 50px;
+  background-color: #e7bb81;
+  color: #654062;
+  border: 4px solid #f0a138;
+  margin-bottom: -4px;
+  align-items: center;
+  display: flex;
+  font-size: 25px;
+  font-weight: bolder;
+  cursor: pointer;
+
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.tab.active {
+  background-color: #f3b562;
+  border-bottom-width: 0;
+}
+
+.cardholder {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 1.5vw;
+}
+
+.PadWrapper {
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  align-items: center;
+}

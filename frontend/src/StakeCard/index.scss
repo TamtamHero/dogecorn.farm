@@ -1,0 +1,112 @@
+@media only screen and (orientation: landscape) {
+  div[class^="card-border"] {
+    margin: 0.2vw;
+  }
+  .card {
+    height: 32vh;
+    padding: 1vh;
+    margin: 1vh;
+  }
+  .card span {
+    font-size: 1.5vw;
+  }
+  .card .button span {
+    font-size: 1.3vw;
+  }
+}
+
+@media only screen and (orientation: portrait) {
+  div[class^="card-border"] {
+    margin: 1vw;
+  }
+  .card {
+    height: 23vh;
+    padding: 1vw;
+    margin: 1vw;
+  }
+  .card span {
+    font-size: 1.5vh;
+  }
+  .card .button span {
+    font-size: 1.3vh;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+.card-border--normal {
+  position: relative;
+  z-index: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.card-border--rainbow {
+  position: relative;
+  z-index: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  flex: 1;
+
+  &::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    left: -50%;
+    top: -50%;
+    width: 200%;
+    height: 200%;
+    background-color: linear-gradient(red, orange, yellow, cyan, blue, violet);
+    background-size: 50% 50%, 50% 50%;
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+    background-image: linear-gradient(
+      lightgreen,
+      cyan,
+      blue,
+      #fc03db,
+      red,
+      orange,
+      yellow
+    );
+    animation: rotate 8s linear infinite;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 6px;
+    top: 6px;
+    background: white;
+    border-radius: 5px;
+  }
+}
+
+.card {
+  border-radius: 20px;
+  background-color: #ee9723;
+  flex: 1;
+}
+.card span {
+  font-weight: bolder;
+  color: #eee;
+}
+
+.card .button {
+  width: auto;
+  margin-top: 20px;
+}
+.card .button span {
+  color: #5c4b51;
+}
