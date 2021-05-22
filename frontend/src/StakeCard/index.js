@@ -1,16 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
 
-function StakeCard({ title, description, rainbow }) {
-  const [activeTab, setActiveTab] = useState(0);
+function StakeCard({ pool }) {
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    setBalance(pool.balance);
+    console.log(pool.balance);
+  }, [pool.balance]);
 
   return (
-    <div className={rainbow ? "card-border--rainbow" : "card-border--normal"}>
+    <div
+      className={
+        pool.incentive ? "card-border--rainbow" : "card-border--normal"
+      }
+    >
       <div className="card">
-        <span>{title}</span>
-        <div className={"button"}>
-          <span>{description}</span>
-        </div>
+        <div className={"title"}>{pool.title}</div>
+        <div className={"description"}>{pool.description}</div>
+        <div className={"balance"}>{balance}</div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 {
   "homepage": "https://matic.supply",
-  "name": "polygon-faucet-frontend",
+  "name": "dogecorn.farm-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
