@@ -27,7 +27,7 @@
 }
 
 .Pad {
-  z-index: 20;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -42,7 +42,7 @@
 
 .tabs {
   display: flex;
-  z-index: 21;
+  z-index: 3;
   position: relative;
   flex-direction: row;
   justify-content: flex-end;
@@ -76,7 +76,7 @@
 }
 
 .PadWrapper {
-  z-index: 20;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   justify-content: center;
