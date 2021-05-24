@@ -11,27 +11,29 @@ import "react-toastify/dist/ReactToastify.css";
 import config from "react-global-configuration";
 import configuration from "./config.json";
 import AnimatedWave from "./AnimatedWave.js";
-import pools from "./poolConfigs.js";
+import { dogecorn_addr } from "./Configs.js";
+import { getFormattedBalance } from "./helpers.js";
 
 config.set(configuration);
 
-const accountManager = new AccountManager(pools);
+const accountManager = new AccountManager();
 
 function App() {
   const [account, setAccount] = useState("Not connected");
-  const [balance, setBalance] = useState(0);
+  const [maticBalance, setMaticBalance] = useState(0);
   const [dogeBalance, setDogeBalance] = useState(0);
 
   return (
     <div className="App">
       <ToastContainer hideProgressBar={true} position="top-left" />
-      {/* <div className="wave">
+      <div className="wave">
         <AnimatedWave height={1000} color="#824834" />
-      </div> */}
+      </div>
       <div className="Connect-button">
         <StatusBar
-          color="#8248e5"
           account={account}
+          maticBalance={maticBalance}
+          dogeBalance={dogeBalance}
           onClick={() =>
             accountManager.connect().then((account) => {
               if (!account) {
@@ -41,8 +43,13 @@ function App() {
               } else {
                 setAccount(account);
                 accountManager.getMaticBalance().then((balance) => {
-                  setBalance(balance);
+                  setMaticBalance(balance);
                 });
+                accountManager
+                  .getTokenBalance(dogecorn_addr)
+                  .then((balance) => {
+                    setDogeBalance(balance);
+                  });
               }
             })
           }

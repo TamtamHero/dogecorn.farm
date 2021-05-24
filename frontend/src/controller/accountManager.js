@@ -3,11 +3,12 @@ import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Dogecorn from "../contracts/Dogecorn.json";
 import IERC20 from "../contracts/IERC20.json";
+import { network, pools, infuraId } from "../Configs";
 
 const MATIC_NETWORK = 80001;
 
 class AccountManager {
-  constructor(pools) {
+  constructor() {
     this.connected = false;
     this.busy = false;
     this.web3Provider = null;
@@ -25,13 +26,13 @@ class AccountManager {
         walletconnect: {
           package: WalletConnectProvider, // required
           options: {
-            infuraId: "INFURA_ID", // required
+            infuraId: infuraId[network],
           },
         },
       };
 
       const web3Modal = new Web3Modal({
-        network: "mainnet", // optional
+        // network: "mainnet", // optional
         cacheProvider: true, // optional
         providerOptions, // required
       });
@@ -80,30 +81,17 @@ class AccountManager {
     );
   }
 
-  async getMaticBalance(formatted = true) {
+  async getMaticBalance() {
     this.balance = await this.web3.eth.getBalance(String(this.accounts));
-    this.formatted_balance = this.getFormattedBalance(this.balance, "MATIC");
-    return formatted ? this.formatted_balance : this.balance;
+    return this.balance;
   }
 
-  async getTokenBalance(address, formatted = true) {
+  async getTokenBalance(address) {
     let contract = new this.web3.eth.Contract(IERC20.abi, address);
     let balance = await contract.methods
       .balanceOf(String(this.accounts))
       .call();
-    return formatted ? this.getFormattedBalance(balance, "") : balance;
-  }
-
-  getFormattedBalance(balance, ticker, decimals = 18) {
-    let balance_BN = this.web3.utils.toBN(balance);
-    let decimals_BN = this.web3.utils.toBN(10 ** decimals);
-    let before_comma = balance_BN.div(decimals_BN).toString();
-    let after_comma = balance_BN.mod(decimals_BN).toString();
-    after_comma = after_comma.padStart(decimals, "0");
-
-    return (
-      before_comma + "." + after_comma + (ticker.length ? " " + ticker : "")
-    );
+    return balance;
   }
 }
 

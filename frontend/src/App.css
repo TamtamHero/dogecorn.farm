@@ -21,8 +21,8 @@ html {
 }
 
 .Connect-button {
-  right: 0;
-  top: 0;
+  right: 10px;
+  top: 10px;
   position: fixed;
   z-index: 30;
 }

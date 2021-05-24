@@ -1,34 +1,95 @@
 @media only screen and (orientation: landscape) {
-  .ConnectButton {
-    width: 10vw;
+  .status-bar-wrapper {
+    font-size: 1.2vw;
+    height: 2vw;
+  }
+  .connect-button {
     height: 2vw;
     font-size: 1.2vw;
+  }
+  .logo {
+    width: 1.2vw;
+  }
+  .doge-balance {
+    height: 2vw;
   }
 }
 
 @media only screen and (orientation: portrait) {
-  .ConnectButton {
-    width: 25vw;
+  .status-bar-wrapper {
+    font-size: 1.2vh;
+    height: 3vh;
+  }
+  .connect-button {
+    height: 3vh;
+    font-size: 1.2vh;
+  }
+  .logo {
+    width: 1.2vh;
+  }
+  .doge-balance {
     height: 3vh;
     font-size: 1.2vh;
   }
 }
 
-.ConnectButton {
-  border: none;
+.status-bar-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   color: white;
+}
+
+.doge-balance {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  border-radius: 12px;
+  opacity: 1;
+  padding-left: 4px;
+  padding-right: 4px;
+  margin-right: 5px;
+  font-family: "ComicSansMs";
+  background-color: #8248e5;
+}
+
+.amount {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.polygon-status {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #ceb1ff;
+}
+
+.polygon-balance {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-right: 5px;
+  margin-left: 5px;
+  color: #8248e5;
+}
+
+.connect-button {
+  border: none;
   border-radius: 12px;
   opacity: 1;
   transition: 0.3s;
-  padding-left: 0;
-  padding-right: 0;
+  background-color: #8248e5;
+}
+
+.connect-button-content {
+  border: none;
+  color: #fff;
   font-family: "ComicSansMs";
 }
 
-.ConnectButton:disabled {
-  opacity: 0.5;
-}
-
-.ConnectButton:hover:enabled {
+.connect-button:hover:enabled {
   opacity: 0.8;
 }

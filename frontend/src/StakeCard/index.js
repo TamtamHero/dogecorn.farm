@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
+import AmountInputField from "../AmountInputField";
 import "./index.css";
 
 function StakeCard({ pool }) {
   const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    setBalance(pool.balance);
-    console.log(pool.balance);
+    if (pool.balance) {
+      setBalance(pool.balance);
+    }
   }, [pool.balance]);
 
   return (
@@ -18,7 +20,10 @@ function StakeCard({ pool }) {
       <div className="card">
         <div className={"title"}>{pool.title}</div>
         <div className={"description"}>{pool.description}</div>
-        <div className={"balance"}>{balance}</div>
+        <AmountInputField
+          balance={balance}
+          decimals={pool.decimals}
+        ></AmountInputField>
       </div>
     </div>
   );
