@@ -15,6 +15,7 @@
   }
   .card .approval-button .load-button {
     font-size: 1.5vw;
+    height: calc(12vh + 6px);
   }
 }
 
@@ -35,6 +36,7 @@
   }
   .card .approval-button .load-button {
     font-size: 1.5vh;
+    height: calc(24vw + 6px);
   }
 }
 
@@ -67,7 +69,6 @@
   font-family: "comicSansMs";
   border: 4px solid #e7bb81;
   background-color: #e7bb81;
-  height: 75%;
 }
 
 .card .approval-button .load-button .button-text {
