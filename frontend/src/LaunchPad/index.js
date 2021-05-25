@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 import StakeCard from "../StakeCard";
 
-function Launchpad({ pools }) {
+function Launchpad({ accountManager, pools }) {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -26,7 +26,11 @@ function Launchpad({ pools }) {
           <div>
             <div className="cardholder">
               {pools.earn.map((pool) => (
-                <StakeCard key={pool.title} pool={pool}></StakeCard>
+                <StakeCard
+                  key={pool.title}
+                  accountManager={accountManager}
+                  pool={pool}
+                ></StakeCard>
               ))}
             </div>
           </div>
@@ -38,9 +42,8 @@ function Launchpad({ pools }) {
               {pools.farm.map((pool) => (
                 <StakeCard
                   key={pool.title}
-                  title={pool.title}
-                  description={pool.description}
-                  rainbow={pool.incentive}
+                  accountManager={accountManager}
+                  pool={pool}
                 ></StakeCard>
               ))}
             </div>

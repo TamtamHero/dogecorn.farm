@@ -2,8 +2,10 @@ import Web3 from "web3";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Dogecorn from "../contracts/Dogecorn.json";
+import Elon from "../contracts/Elon.json";
 import IERC20 from "../contracts/IERC20.json";
 import { network, pools, infuraId } from "../Configs";
+import BN from "bn.js";
 
 const MATIC_NETWORK = 80001;
 
@@ -17,6 +19,7 @@ class AccountManager {
     this.network = 0;
     this.accounts = null;
     this.dogecorn = null;
+    this.elon = null;
     this.pools = pools;
   }
 
@@ -60,23 +63,66 @@ class AccountManager {
           Dogecorn.abi,
           deployedNetwork && deployedNetwork.address
         );
-        await this.getBalances();
+        this.elon = new this.web3.eth.Contract(
+          Elon.abi,
+          deployedNetwork && Elon.networks[this.network].address
+        );
+        await this.refreshPools();
         console.log(this.pools);
         return this.accounts;
       }
     }
   }
 
-  async useContract(value) {
-    await this.contract.methods.set(value).send({ from: this.accounts[0] });
+  async refreshPools() {
+    await this.getBalances();
+    await this.getTokenAllowances();
+  }
+
+  async setTokenAllowance(tokenAddress) {
+    const max256 = new BN(
+      "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+      "hex"
+    );
+    let contract = new this.web3.eth.Contract(IERC20.abi, tokenAddress);
+    await contract.methods
+      .approve(this.elon.options.address, max256)
+      .send({ from: this.accounts[0] });
     return true;
+  }
+
+  async getTokenAllowances() {
+    this.pools.earn = await Promise.all(
+      this.pools.earn.map(async (pool) => ({
+        ...pool,
+        allowance: await this.getTokenAllowance(
+          pool.tokenAddress,
+          this.elon.options.address
+        ),
+      }))
+    );
+  }
+
+  async getTokenAllowance(tokenAddress, spender) {
+    let contract = new this.web3.eth.Contract(IERC20.abi, tokenAddress);
+    let allowance = await contract.methods
+      .allowance(String(this.accounts), spender)
+      .call();
+    return allowance;
   }
 
   async getBalances() {
     this.pools.earn = await Promise.all(
       this.pools.earn.map(async (pool) => ({
         ...pool,
-        balance: await this.getTokenBalance(pool.tokenAddress),
+        balance: await this.getTokenBalance(
+          pool.tokenAddress,
+          String(this.accounts)
+        ),
+        deposited: await this.getTokenBalance(
+          pool.tokenAddress,
+          this.elon.options.address
+        ),
       }))
     );
   }
@@ -86,11 +132,9 @@ class AccountManager {
     return this.balance;
   }
 
-  async getTokenBalance(address) {
+  async getTokenBalance(address, account) {
     let contract = new this.web3.eth.Contract(IERC20.abi, address);
-    let balance = await contract.methods
-      .balanceOf(String(this.accounts))
-      .call();
+    let balance = await contract.methods.balanceOf(account).call();
     return balance;
   }
 }

@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./index.css";
 
-function LoadButton({ text, loadingText, color, disabled, hidden, onClick }) {
+function LoadButton({ text, loadingText, disabled, hidden, onClick }) {
   const [isLoading, setLoading] = useState(false);
+  const [opacity, setOpacity] = useState(1);
 
   const onTriggerRun = useCallback(() => {
     setLoading(true);
@@ -11,19 +12,31 @@ function LoadButton({ text, loadingText, color, disabled, hidden, onClick }) {
     });
   }, [onClick]);
 
+  useEffect(() => {
+    setOpacity(isLoading | disabled ? 0.5 : 1);
+  }, [isLoading, disabled]);
+
   return (
-    <button
-      className="BackupButton"
+    <div
+      className="load-button"
       disabled={isLoading | disabled}
-      onClick={isLoading ? null : onTriggerRun}
+      onMouseEnter={() => !disabled && setOpacity(0.8)}
+      onMouseLeave={() => !disabled && setOpacity(1)}
       style={{
-        margin: "10px",
-        backgroundColor: color,
         display: hidden ? "none" : true,
+        opacity: disabled | isLoading ? 0.5 : 1,
       }}
     >
-      {isLoading ? loadingText || "Loading…" : text}
-    </button>
+      <div
+        className="button-background"
+        style={{
+          opacity: opacity,
+        }}
+      ></div>
+      <div className="button-text" onClick={isLoading ? null : onTriggerRun}>
+        {isLoading ? loadingText || "Loading…" : text}
+      </div>
+    </div>
   );
 }
 

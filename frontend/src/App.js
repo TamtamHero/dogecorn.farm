@@ -26,9 +26,9 @@ function App() {
   return (
     <div className="App">
       <ToastContainer hideProgressBar={true} position="top-left" />
-      <div className="wave">
+      {/* <div className="wave">
         <AnimatedWave height={1000} color="#824834" />
-      </div>
+      </div> */}
       <div className="Connect-button">
         <StatusBar
           account={account}
@@ -46,7 +46,7 @@ function App() {
                   setMaticBalance(balance);
                 });
                 accountManager
-                  .getTokenBalance(dogecorn_addr)
+                  .getTokenBalance(dogecorn_addr, String(account))
                   .then((balance) => {
                     setDogeBalance(balance);
                   });
@@ -60,7 +60,10 @@ function App() {
         <p className="App-title">DogeCorn Farm</p>
       </div>
       <header className="App-header">
-        <Launchpad pools={accountManager.pools}></Launchpad>
+        <Launchpad
+          accountManager={accountManager}
+          pools={accountManager.pools}
+        ></Launchpad>
         <AppExplanations></AppExplanations>
         <div className="App-footer">
           <p>

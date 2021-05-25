@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 import { BN } from "bn.js";
-import { getFormattedBalance } from "../helpers.js";
 import { Decimal } from "decimal.js";
 
-function AmountInputField({ balance, decimals }) {
+function AmountInputField({ pool }) {
   const [amount, setAmount] = useState("0");
 
   const onChange = (event) => {
     let input = event.target.value.replace(/[^\d.]/g, "");
     if (input.length) {
-      const amount_wei = new Decimal(input).mul(new Decimal(10).pow(decimals));
+      const amount_wei = new Decimal(input).mul(
+        new Decimal(10).pow(pool.decimals)
+      );
       const amount_BN = new BN(amount_wei.toFixed(0), 10);
-      const balance_BN = new BN(balance, 10);
+      const balance_BN = new BN(pool.balance, 10);
 
       if (amount_BN.lte(balance_BN)) {
         setAmount(input);
@@ -25,8 +26,10 @@ function AmountInputField({ balance, decimals }) {
   };
 
   const setMax = () => {
-    const max = new Decimal(balance).div(new Decimal(10).pow(decimals));
-    setAmount(max.toFixed(decimals));
+    const max = new Decimal(pool.balance).div(
+      new Decimal(10).pow(pool.decimals)
+    );
+    setAmount(max.toFixed(pool.decimals));
   };
 
   const onSelect = () => {
@@ -43,7 +46,6 @@ function AmountInputField({ balance, decimals }) {
 
   return (
     <>
-      <div className="balance">Available: {getFormattedBalance(balance)}</div>
       <div className="amount-field-wrapper">
         <input
           value={amount}

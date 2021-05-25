@@ -69,6 +69,10 @@ html {
   width: 400px;
 }
 
+.App-footer {
+  z-index: 3;
+}
+
 .App-footer a {
   color: #61dafb;
   text-decoration: none;

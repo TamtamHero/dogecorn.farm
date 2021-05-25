@@ -13,6 +13,9 @@
   .card .description {
     font-size: 1.3vw;
   }
+  .card .approval-button .load-button {
+    font-size: 1.5vw;
+  }
 }
 
 @media only screen and (orientation: portrait) {
@@ -30,6 +33,58 @@
   .card .description {
     font-size: 1.3vh;
   }
+  .card .approval-button .load-button {
+    font-size: 1.5vh;
+  }
+}
+
+.card {
+  border-radius: 20px;
+  background-color: #ee9723;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
+.card .title {
+  font-weight: bolder;
+  color: #eee;
+  flex: 1;
+}
+
+.card .description {
+  color: #5c4b51;
+  flex: 1;
+}
+
+.card .approval-button {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.card .approval-button .load-button {
+  font-family: "comicSansMs";
+  border: 4px solid #e7bb81;
+  background-color: #e7bb81;
+}
+
+.card .approval-button .load-button .button-text {
+  color: #eee;
+}
+
+.card .approval-button .load-button .button-background {
+  background-color: #5c4b51;
+}
+
+.card-border--normal {
+  position: relative;
+  z-index: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  flex: 1;
 }
 
 *,
@@ -42,14 +97,6 @@
   100% {
     transform: rotate(1turn);
   }
-}
-
-.card-border--normal {
-  position: relative;
-  z-index: 0;
-  border-radius: 20px;
-  overflow: hidden;
-  flex: 1;
 }
 
 .card-border--rainbow {
@@ -91,23 +138,4 @@
     background: white;
     border-radius: 5px;
   }
-}
-
-.card {
-  border-radius: 20px;
-  background-color: #ee9723;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: left;
-}
-.card .title {
-  font-weight: bolder;
-  color: #eee;
-  flex: 1;
-}
-
-.card .description {
-  color: #5c4b51;
-  flex: 1;
 }

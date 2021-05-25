@@ -13,16 +13,12 @@
 @media only screen and (orientation: portrait) {
   .amount-field-wrapper {
     font-size: 1.2vh;
-    /* height: 100%; */
   }
   .balance {
     font-size: 1.2vh;
   }
   input {
     font-size: 1.2vh;
-  }
-  .max-button {
-    /* padding: ; */
   }
 }
 
@@ -39,7 +35,8 @@
 }
 
 .max-button {
-  background-color: #ee9723;
+  border: none;
+  background-color: #5c4b51;
   width: 30%;
   height: 90%;
   margin-right: 1%;
@@ -47,10 +44,16 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.max-button:hover {
+  opacity: 0.8;
 }
 
 .max-button span {
-  color: #5c4b51;
+  color: #eee;
 }
 
 input {

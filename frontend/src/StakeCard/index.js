@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
 import AmountInputField from "../AmountInputField";
+import LoadButton from "../LoadButton";
+import { BN } from "bn.js";
+import { getFormattedBalance } from "../helpers.js";
 import "./index.css";
 
-function StakeCard({ pool }) {
-  const [balance, setBalance] = useState(0);
+function StakeCard({ accountManager, pool }) {
+  const [allowance, setAllowance] = useState(0);
 
   useEffect(() => {
-    if (pool.balance) {
-      setBalance(pool.balance);
+    if (pool.allowance) {
+      const allowance_BN = new BN(pool.allowance, 10);
+      if (!allowance_BN.isZero()) {
+        setAllowance(pool.allowance);
+      }
     }
-  }, [pool.balance]);
+  }, [pool.allowance]);
 
   return (
     <div
@@ -18,12 +24,33 @@ function StakeCard({ pool }) {
       }
     >
       <div className="card">
-        <div className={"title"}>{pool.title}</div>
-        <div className={"description"}>{pool.description}</div>
-        <AmountInputField
-          balance={balance}
-          decimals={pool.decimals}
-        ></AmountInputField>
+        <div className="title">{pool.title}</div>
+        <div className="description">
+          {
+            <>
+              <p>{pool.description}</p>
+              <p>{"APY: 1456%"}</p>
+            </>
+          }
+        </div>
+        <div className="balance">
+          Available: {getFormattedBalance(pool.balance)}
+        </div>
+        {allowance ? (
+          // <StakeMenu pool={pool}></StakeMenu>
+          <AmountInputField pool={pool}></AmountInputField>
+        ) : (
+          <div className="approval-button">
+            <LoadButton
+              text="Allow Deposit"
+              loadingText="Allowing..."
+              disabled={!accountManager.connected}
+              onClick={() =>
+                accountManager.setTokenAllowance(pool.tokenAddress)
+              }
+            ></LoadButton>
+          </div>
+        )}
       </div>
     </div>
   );
