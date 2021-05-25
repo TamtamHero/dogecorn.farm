@@ -42,6 +42,9 @@ function StatusBar({ account, maticBalance, dogeBalance, onClick }) {
           className="connect-button"
           disabled={isLoading | (accountAddr !== "")}
           onClick={isLoading ? null : onTriggerRun}
+          style={{
+            cursor: isLoading | (accountAddr !== "") ? "default" : "pointer",
+          }}
         >
           <div className="connect-button-content">
             {accountAddr

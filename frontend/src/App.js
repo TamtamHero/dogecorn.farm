@@ -1,4 +1,5 @@
 import logo from "./logo.svg";
+import dogecorn_logo from "./dogecorn-logo.svg";
 import "./App.css";
 import packageJson from "../package.json";
 import Launchpad from "./LaunchPad";
@@ -26,9 +27,9 @@ function App() {
   return (
     <div className="App">
       <ToastContainer hideProgressBar={true} position="top-left" />
-      {/* <div className="wave">
+      <div className="wave">
         <AnimatedWave height={1000} color="#824834" />
-      </div> */}
+      </div>
       <div className="Connect-button">
         <StatusBar
           account={account}
@@ -56,7 +57,7 @@ function App() {
         />
       </div>
       <div className="App-banner">
-        <img src={logo} className="App-logo" alt="logo" />
+        <img src={dogecorn_logo} className="App-logo" alt="logo" />
         <p className="App-title">DogeCorn Farm</p>
       </div>
       <header className="App-header">

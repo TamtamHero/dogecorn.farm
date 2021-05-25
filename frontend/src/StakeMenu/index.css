@@ -1,0 +1,48 @@
+@media only screen and (orientation: landscape) {
+  .action-buttons .load-button {
+    height: 4vh;
+  }
+  .balance {
+    font-size: 1vw;
+  }
+}
+
+@media only screen and (orientation: portrait) {
+  .action-buttons .load-button {
+    height: 8vw;
+  }
+  .balance {
+    font-size: 1vh;
+  }
+}
+
+.stake-menu {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: flex-end; */
+  align-items: center;
+  width: 100%;
+}
+
+.action-buttons .load-button {
+  font-family: "comicSansMs";
+  border: 2px solid #e7bb81;
+  background-color: #e7bb81;
+  margin: 1px;
+}
+
+.action-buttons .load-button .button-text {
+  color: #eee;
+}
+
+.action-buttons .load-button .button-background {
+  background-color: #5c4b51;
+}

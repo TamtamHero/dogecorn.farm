@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AmountInputField from "../AmountInputField";
+import StakeMenu from "../StakeMenu";
 import LoadButton from "../LoadButton";
 import { BN } from "bn.js";
 import { getFormattedBalance } from "../helpers.js";
@@ -28,17 +28,14 @@ function StakeCard({ accountManager, pool }) {
         <div className="description">
           {
             <>
-              <p>{pool.description}</p>
-              <p>{"APY: 1456%"}</p>
+              {pool.description}
+              <br></br>
+              {"APY: 1456%"}
             </>
           }
         </div>
-        <div className="balance">
-          Available: {getFormattedBalance(pool.balance)}
-        </div>
         {allowance ? (
-          // <StakeMenu pool={pool}></StakeMenu>
-          <AmountInputField pool={pool}></AmountInputField>
+          <StakeMenu accountManager={accountManager} pool={pool}></StakeMenu>
         ) : (
           <div className="approval-button">
             <LoadButton

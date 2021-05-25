@@ -25,6 +25,7 @@ function LoadButton({ text, loadingText, disabled, hidden, onClick }) {
       style={{
         display: hidden ? "none" : true,
         opacity: disabled | isLoading ? 0.5 : 1,
+        cursor: disabled ? "default" : "pointer",
       }}
     >
       <div
@@ -33,7 +34,10 @@ function LoadButton({ text, loadingText, disabled, hidden, onClick }) {
           opacity: opacity,
         }}
       ></div>
-      <div className="button-text" onClick={isLoading ? null : onTriggerRun}>
+      <div
+        className="button-text"
+        onClick={isLoading | disabled ? null : onTriggerRun}
+      >
         {isLoading ? loadingText || "Loading…" : text}
       </div>
     </div>
