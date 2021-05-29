@@ -7,10 +7,10 @@ export default function AnimatedWave({ height, color }) {
       <path
         fill={color}
         d="
-            M0 277
-            C 473,383
+            M0 177
+            C 273,183
               822,60
-              1920,216
+              1920,116
 
             V 0
             H 0
@@ -22,17 +22,17 @@ export default function AnimatedWave({ height, color }) {
           attributeName="d"
           dur="21s"
           values="
-            M0 277
+            M0 177
             C 473,383
               822,60
-              1920,216
+              1920,116
 
             V 0
             H 0
             V 0
             Z;
 
-            M0 277
+            M0 177
             C 473,060
               1222,383
               1920,236
@@ -42,10 +42,10 @@ export default function AnimatedWave({ height, color }) {
             V 0
             Z;
 
-            M0 277
+            M0 177
             C 473,383
               822,60
-              1920,216
+              1920,116
 
             V 0
             H 0

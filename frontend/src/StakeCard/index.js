@@ -5,7 +5,7 @@ import { BN } from "bn.js";
 import { getFormattedBalance } from "../helpers.js";
 import "./index.css";
 
-function StakeCard({ accountManager, pool }) {
+function StakeCard({ accountManager, pool, onUpdate }) {
   const [allowance, setAllowance] = useState(0);
 
   useEffect(() => {
@@ -35,16 +35,25 @@ function StakeCard({ accountManager, pool }) {
           }
         </div>
         {allowance ? (
-          <StakeMenu accountManager={accountManager} pool={pool}></StakeMenu>
+          <StakeMenu
+            accountManager={accountManager}
+            pool={pool}
+            onUpdate={onUpdate}
+          ></StakeMenu>
         ) : (
           <div className="approval-button">
             <LoadButton
-              text="Allow Deposit"
+              text={
+                accountManager.connected ? "Allow Deposit" : "Not Connected"
+              }
               loadingText="Allowing..."
               disabled={!accountManager.connected}
-              onClick={() =>
-                accountManager.setTokenAllowance(pool.tokenAddress)
-              }
+              onClick={async () => {
+                await accountManager.setTokenAllowance(
+                  pool.tokenAddress[accountManager.network]
+                );
+                onUpdate();
+              }}
             ></LoadButton>
           </div>
         )}

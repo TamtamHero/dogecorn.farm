@@ -5,7 +5,7 @@ import { BN } from "bn.js";
 import { getFormattedBalance } from "../helpers.js";
 import "./index.css";
 
-function StakeMenu({ accountManager, pool }) {
+function StakeMenu({ accountManager, pool, onUpdate }) {
   const [deposable, setDeposable] = useState(false);
   const [withdrawable, setWithdrawable] = useState(false);
   const [harvestable, setHarvestable] = useState(false);
@@ -13,11 +13,17 @@ function StakeMenu({ accountManager, pool }) {
   useEffect(() => {
     if (pool.balance) {
       const balance_BN = new BN(pool.balance, 10);
-      if (!balance_BN.isZero()) {
-        setDeposable(true);
-      }
+      setDeposable(!balance_BN.isZero());
     }
-  }, [pool.balance]);
+    if (pool.deposited) {
+      const deposited_BN = new BN(pool.deposited, 10);
+      setWithdrawable(!deposited_BN.isZero());
+    }
+    if (pool.harvest) {
+      const harvest_BN = new BN(pool.harvest, 10);
+      setHarvestable(!harvest_BN.isZero());
+    }
+  }, [pool]);
 
   return (
     <div className="stake-menu">
@@ -31,19 +37,28 @@ function StakeMenu({ accountManager, pool }) {
           text="Deposit"
           loadingText="Deposing..."
           disabled={!accountManager.connected || !deposable}
-          onClick={() => accountManager.setTokenAllowance(pool.tokenAddress)}
+          onClick={async () => {
+            await accountManager.deposit(pool.pid, pool.balance);
+            onUpdate();
+          }}
         ></LoadButton>
         <LoadButton
           text="Withdraw"
           loadingText="Withdrawing..."
           disabled={!accountManager.connected || !withdrawable}
-          onClick={() => accountManager.setTokenAllowance(pool.tokenAddress)}
+          onClick={async () => {
+            await accountManager.withdraw(pool.pid, pool.deposited);
+            onUpdate();
+          }}
         ></LoadButton>
         <LoadButton
-          text="Harvest"
+          text={"Harvest" + ( harvestable ? " " + getFormattedBalance(pool.harvest) : "") }
           loadingText="Harvesting..."
           disabled={!accountManager.connected || !harvestable}
-          onClick={() => accountManager.setTokenAllowance(pool.tokenAddress)}
+          onClick={async () => {
+            await accountManager.harvest(pool.pid);
+            onUpdate();
+          }}
         ></LoadButton>
       </div>
     </div>

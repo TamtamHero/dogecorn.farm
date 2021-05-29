@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 import StakeCard from "../StakeCard";
 
-function Launchpad({ accountManager, pools }) {
+function Launchpad({ accountManager, pools, onUpdate }) {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -30,6 +30,7 @@ function Launchpad({ accountManager, pools }) {
                   key={pool.title}
                   accountManager={accountManager}
                   pool={pool}
+                  onUpdate={onUpdate}
                 ></StakeCard>
               ))}
             </div>

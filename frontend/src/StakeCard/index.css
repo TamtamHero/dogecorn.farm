@@ -149,8 +149,6 @@
   background-position: 0 0, 100% 0, 100% 100%, 0 100%;
   background-image: -webkit-gradient(linear, left top, left bottom, from(lightgreen), color-stop(cyan), color-stop(blue), color-stop(#fc03db), color-stop(red), color-stop(orange), to(yellow));
   background-image: linear-gradient(lightgreen, cyan, blue, #fc03db, red, orange, yellow);
-  -webkit-animation: rotate 8s linear infinite;
-          animation: rotate 8s linear infinite;
 }
 
 .card-border--rainbow::after {

@@ -34,7 +34,7 @@
   position: relative;
   background-color: #f3b562;
   border-radius: 50px;
-  border: 4px solid #f0a138;
+  border: 4px solid #824834;
   border-bottom-width: 20px;
   border-top-left-radius: 20;
   border-top-right-radius: 0;
@@ -52,7 +52,7 @@
   border-radius: 50px;
   background-color: #e7bb81;
   color: #654062;
-  border: 4px solid #f0a138;
+  border: 4px solid #824834;
   margin-bottom: -4px;
   align-items: center;
   display: flex;

@@ -3,9 +3,14 @@ import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Dogecorn from "../contracts/Dogecorn.json";
 import Elon from "../contracts/Elon.json";
+import Multicall from "../contracts/Multicall.json";
 import IERC20 from "../contracts/IERC20.json";
+import ERC20 from "../contracts/ERC20.json";
 import { network, pools, infuraId } from "../Configs";
 import BN from "bn.js";
+import BigNumber from "bignumber.js";
+
+BigNumber.config({ EXPONENTIAL_AT: 100 });
 
 const MATIC_NETWORK = 80001;
 
@@ -16,10 +21,12 @@ class AccountManager {
     this.web3Provider = null;
     this.web3 = null;
     this.balance = 0;
-    this.network = 0;
+    this.network = network;
+    this.networkId = 0;
     this.accounts = null;
     this.dogecorn = null;
     this.elon = null;
+    this.multicall = null;
     this.pools = pools;
   }
 
@@ -52,31 +59,174 @@ class AccountManager {
         console.error(`User denied account access: ${error}`);
       }
       this.web3 = new Web3(this.web3Provider);
-      this.network = await this.web3.eth.net.getId();
-      if (this.network === MATIC_NETWORK) {
+      this.networkId = await this.web3.eth.net.getId();
+      if (this.networkId === MATIC_NETWORK) {
         this.connected = true;
         console.log(`connected: ${this.accounts} ${typeof this.accounts}`);
 
         // Get the contract instance.
-        const deployedNetwork = Dogecorn.networks[this.network];
+        const deployedNetwork = Dogecorn.networks[this.networkId];
         this.dogecorn = new this.web3.eth.Contract(
           Dogecorn.abi,
           deployedNetwork && deployedNetwork.address
         );
         this.elon = new this.web3.eth.Contract(
           Elon.abi,
-          deployedNetwork && Elon.networks[this.network].address
+          deployedNetwork && Elon.networks[this.networkId].address
         );
+        this.multicall = new this.web3.eth.Contract(
+          Multicall.abi,
+          deployedNetwork && Multicall.networks[this.networkId].address
+        );
+        // await this.refreshPools2();
         await this.refreshPools();
-        console.log(this.pools);
         return this.accounts;
       }
     }
   }
 
+  async do_multicall(calls) {
+    const multi = new this.web3.eth.Contract(
+      Multicall.abi,
+      this.multicall.options.address
+    );
+
+    const result = await multi.methods.aggregate(calls).call();
+    return result;
+  }
+
   async refreshPools() {
-    await this.getBalances();
-    await this.getTokenAllowances();
+    const requests = [
+      {
+        name: "allowance",
+        methodName: "allowance",
+        params: [String(this.accounts), this.elon.options.address],
+        target: ["tokenAddress", "lpTokenAddress"],
+        abi: ERC20.abi,
+      },
+      {
+        name: "balance",
+        methodName: "balanceOf",
+        params: [String(this.accounts)],
+        target: ["tokenAddress", "lpTokenAddress"],
+        abi: ERC20.abi,
+      },
+      {
+        name: "deposited",
+        methodName: "userInfo",
+        params: ["pool.pid", String(this.accounts)],
+        target: this.elon.options.address,
+        abi: Elon.abi,
+        extract: [2, 66],
+      },
+      {
+        name: "harvest",
+        methodName: "pendingDogecorn",
+        params: ["pool.pid", String(this.accounts)],
+        target: this.elon.options.address,
+        abi: Elon.abi,
+      },
+      {
+        name: "tvl",
+        methodName: "balanceOf",
+        params: [this.elon.options.address],
+        target: ["tokenAddress", "lpTokenAddress"],
+        abi: ERC20.abi,
+      },
+      {
+        name: "tokenBalanceOfLp",
+        methodName: "balanceOf",
+        params: [String(this.accounts)],
+        target: ["tokenAddress"],
+        abi: ERC20.abi,
+      },
+      {
+        name: "quoteTokenBalanceOfLp",
+        methodName: "balanceOf",
+        params: [String(this.accounts)],
+        target: ["quoteTokenAddress"],
+        abi: ERC20.abi,
+      },
+    ];
+    let calls = [];
+
+    requests.map((request) => {
+      let calls_chunk = this.pools.earn.map((pool) => {
+        let target;
+        // ugly AF but :goodenough:
+        if (Array.isArray(request.target)) {
+          if (request.target.length === 2 && !pool.singleTokenPool) {
+            target = pool[request.target[1]][this.network];
+          } else {
+            target = pool[request.target[0]][this.network];
+          }
+        } else {
+          target = request.target;
+        }
+        const methodInterface = request.abi.find(
+          (f) => f.name === request.methodName
+        );
+        request.params = request.params.map((param) => {
+          if (typeof param === "string") {
+            if (param.startsWith("pool.")) {
+              param = param.replace("pool.", "");
+              param = pool[param];
+            }
+          }
+          return param;
+        });
+        return [
+          target.toLowerCase(),
+          this.web3.eth.abi.encodeFunctionCall(methodInterface, request.params),
+        ];
+      });
+
+      calls = [...calls, ...calls_chunk];
+    });
+
+    const { blockNumber, returnData } = await this.do_multicall(calls);
+
+    for (let i = 0; i < returnData.length; i++) {
+      let data = returnData[i];
+      const poolIndex = i % this.pools.earn.length;
+      const requestIndex = Math.floor(i / this.pools.earn.length);
+      const field = requests[requestIndex].name;
+      const extract = requests[requestIndex]["extract"];
+      if (extract) {
+        data = "0x" + data.slice(extract[0], extract[1]);
+      }
+      const bn = new BigNumber(data);
+      this.pools.earn[poolIndex][field] = bn.toString();
+    }
+    console.log(this.pools.earn);
+    return this.pools;
+  }
+
+  async refreshPools2() {
+    this.pools = {
+      ...this.pools,
+      earn: await Promise.all(
+        this.pools.earn.map(async (pool) => ({
+          ...pool,
+          balance: await this.getTokenBalance(
+            pool.tokenAddress[this.network],
+            String(this.accounts)
+          ),
+          tvl: await this.getTokenBalance(
+            pool.tokenAddress[this.network],
+            this.elon.options.address
+          ),
+          deposited: await this.getDepositedTokenBalance(pool.pid),
+          allowance: await this.getTokenAllowance(
+            pool.tokenAddress[this.network],
+            this.elon.options.address
+          ),
+          harvest: await this.getHarvestableBalance(pool.pid),
+        }))
+      ),
+    };
+    console.log(this.pools.earn);
+    return this.pools;
   }
 
   async setTokenAllowance(tokenAddress) {
@@ -84,47 +234,19 @@ class AccountManager {
       "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
       "hex"
     );
-    let contract = new this.web3.eth.Contract(IERC20.abi, tokenAddress);
+    const contract = new this.web3.eth.Contract(IERC20.abi, tokenAddress);
     await contract.methods
       .approve(this.elon.options.address, max256)
       .send({ from: this.accounts[0] });
     return true;
   }
 
-  async getTokenAllowances() {
-    this.pools.earn = await Promise.all(
-      this.pools.earn.map(async (pool) => ({
-        ...pool,
-        allowance: await this.getTokenAllowance(
-          pool.tokenAddress,
-          this.elon.options.address
-        ),
-      }))
-    );
-  }
-
   async getTokenAllowance(tokenAddress, spender) {
-    let contract = new this.web3.eth.Contract(IERC20.abi, tokenAddress);
-    let allowance = await contract.methods
+    const contract = new this.web3.eth.Contract(IERC20.abi, tokenAddress);
+    const allowance = await contract.methods
       .allowance(String(this.accounts), spender)
       .call();
     return allowance;
-  }
-
-  async getBalances() {
-    this.pools.earn = await Promise.all(
-      this.pools.earn.map(async (pool) => ({
-        ...pool,
-        balance: await this.getTokenBalance(
-          pool.tokenAddress,
-          String(this.accounts)
-        ),
-        deposited: await this.getTokenBalance(
-          pool.tokenAddress,
-          this.elon.options.address
-        ),
-      }))
-    );
   }
 
   async getMaticBalance() {
@@ -133,9 +255,41 @@ class AccountManager {
   }
 
   async getTokenBalance(address, account) {
-    let contract = new this.web3.eth.Contract(IERC20.abi, address);
-    let balance = await contract.methods.balanceOf(account).call();
+    const contract = new this.web3.eth.Contract(IERC20.abi, address);
+    const balance = await contract.methods.balanceOf(account).call();
     return balance;
+  }
+
+  async getDepositedTokenBalance(pid) {
+    const balance = await this.elon.methods
+      .getDepositedBalance(pid, String(this.accounts))
+      .call();
+    console.log(balance);
+    return balance;
+  }
+
+  async getHarvestableBalance(pid) {
+    const harverstableBalance = await this.elon.methods
+      .pendingDogecorn(pid, String(this.accounts))
+      .call();
+    return harverstableBalance;
+  }
+
+  async deposit(pid, amount) {
+    return await this.elon.methods
+      .deposit(pid, amount)
+      .send({ from: String(this.accounts[0]) })
+      .then(async () => await this.refreshPools());
+  }
+
+  async harvest(pid) {
+    return await this.deposit(pid, 0);
+  }
+
+  async withdraw(pid, amount) {
+    return await this.elon.methods
+      .withdraw(pid, amount)
+      .send({ from: String(this.accounts[0]) });
   }
 }
 
