@@ -9,7 +9,7 @@ function StatusBar({ account, maticBalance, dogeBalance, onClick }) {
   const [accountAddr, setAccountAddr] = useState("");
 
   const onTriggerRun = useCallback(() => {
-    if (account === "Not connected") {
+    if (!account) {
       setLoading(true);
       onClick().then(() => {
         setLoading(false);
@@ -18,7 +18,7 @@ function StatusBar({ account, maticBalance, dogeBalance, onClick }) {
   }, [onClick, account]);
 
   useEffect(() => {
-    if (account !== "Not connected") {
+    if (account) {
       setAccountAddr(
         account.slice(0, 4) +
           "..." +

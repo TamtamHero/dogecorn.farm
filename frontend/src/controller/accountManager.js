@@ -5,6 +5,7 @@ import { network, pools, dogecorn_addr, elon_addr } from "../Configs";
 import BN from "bn.js";
 import getWeb3 from "./getWeb3";
 import refreshPools from "./poolStates";
+import { toast } from "react-toastify";
 class AccountManager {
   constructor() {
     this.connected = false;
@@ -86,10 +87,12 @@ class AccountManager {
   }
 
   async deposit(pid, amount) {
-    return await this.elon.methods
-      .deposit(pid, amount)
-      .send({ from: String(this.account) })
-      .then(async () => await refreshPools());
+    return await tryCall(
+      async () =>
+        await this.elon.methods
+          .deposit(pid, amount)
+          .send({ from: String(this.account) })
+    );
   }
 
   async harvest(pid) {
@@ -97,10 +100,20 @@ class AccountManager {
   }
 
   async withdraw(pid, amount) {
-    return await this.elon.methods
-      .withdraw(pid, amount)
-      .send({ from: String(this.account) })
-      .then(async () => await refreshPools());
+    return await tryCall(
+      async () =>
+        await this.elon.methods
+          .withdraw(pid, amount)
+          .send({ from: String(this.account) })
+    );
+  }
+}
+
+async function tryCall(call) {
+  try {
+    return await call();
+  } catch (error) {
+    toast.error(error.message);
   }
 }
 

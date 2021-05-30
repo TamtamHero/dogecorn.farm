@@ -11,7 +11,6 @@ function StakeMenu({ accountManager, pool, onUpdate }) {
   const [harvestable, setHarvestable] = useState(false);
 
   useEffect(() => {
-    console.log(pool);
     if (pool.balance) {
       const balance_BN = new BN(pool.balance, 10);
       setDeposable(!balance_BN.isZero());

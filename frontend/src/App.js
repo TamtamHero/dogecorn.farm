@@ -11,16 +11,14 @@ import refreshPools from "./controller/poolStates";
 import React, { useState, useCallback, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import config from "react-global-configuration";
-import configuration from "./config.json";
 import AnimatedWave from "./AnimatedWave.js";
 import { dogecorn_addr } from "./Configs.js";
-config.set(configuration);
+import PageVisibility from "react-page-visibility";
 
 const accountManager = new AccountManager();
 
 function App() {
-  const [account, setAccount] = useState("Not connected");
+  const [account, setAccount] = useState(null);
   const [maticBalance, setMaticBalance] = useState(0);
   const [dogeBalance, setDogeBalance] = useState(0);
   const [pools, setPools] = useState(accountManager.pools);
@@ -35,7 +33,6 @@ function App() {
   }, []);
 
   const updateStatus = useCallback(() => {
-    console.log(`+++ file: App.js - Line #38\n`);
     if (accountManager.account) {
       setAccount(accountManager.account);
       accountManager.getMaticBalance().then((balance) => {
@@ -49,6 +46,11 @@ function App() {
       updatePools();
     }
   }, []);
+
+  const handleVisibilityChange = (isVisible) => {
+    updatePools();
+    updateStatus();
+  };
 
   return (
     <div className="App">
@@ -69,11 +71,13 @@ function App() {
         <p className="App-title">DogeCorn</p>
       </div>
       <header className="App-header">
-        <Launchpad
-          accountManager={accountManager}
-          pools={pools}
-          onUpdate={updatePools}
-        ></Launchpad>
+        <PageVisibility onChange={handleVisibilityChange}>
+          <Launchpad
+            accountManager={accountManager}
+            pools={pools}
+            onUpdate={updatePools}
+          ></Launchpad>
+        </PageVisibility>
         <AppExplanations></AppExplanations>
         <div className="App-footer">
           <i>
