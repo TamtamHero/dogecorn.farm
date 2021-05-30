@@ -25,17 +25,16 @@ function Launchpad({ accountManager, pools, onUpdate }) {
         <div className="Pad">
           <div>
             <div className="cardholder">
-              {pools.map(
-                (pool) =>
-                  pool.type === "doge" && (
-                    <StakeCard
-                      key={pool.title}
-                      accountManager={accountManager}
-                      pool={pool}
-                      onUpdate={onUpdate}
-                    ></StakeCard>
-                  )
-              )}
+              {pools
+                .filter((pool) => pool.type === "doge")
+                .map((pool) => (
+                  <StakeCard
+                    key={pool.title}
+                    accountManager={accountManager}
+                    pool={pool}
+                    onUpdate={onUpdate}
+                  ></StakeCard>
+                ))}
             </div>
           </div>
         </div>
@@ -43,16 +42,16 @@ function Launchpad({ accountManager, pools, onUpdate }) {
         <div className="Pad">
           <div>
             <div className="cardholder">
-              {pools.map(
-                (pool) =>
-                  pool.type === "farm" && (
-                    <StakeCard
-                      key={pool.title}
-                      accountManager={accountManager}
-                      pool={pool}
-                    ></StakeCard>
-                  )
-              )}
+              {pools
+                .filter((pool) => pool.type === "farm")
+                .map((pool) => (
+                  <StakeCard
+                    key={pool.title}
+                    accountManager={accountManager}
+                    pool={pool}
+                    onUpdate={onUpdate}
+                  ></StakeCard>
+                ))}
             </div>
           </div>
         </div>
