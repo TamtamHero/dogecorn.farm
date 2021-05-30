@@ -11,6 +11,7 @@ function StakeMenu({ accountManager, pool, onUpdate }) {
   const [harvestable, setHarvestable] = useState(false);
 
   useEffect(() => {
+    console.log(pool);
     if (pool.balance) {
       const balance_BN = new BN(pool.balance, 10);
       setDeposable(!balance_BN.isZero());
@@ -52,7 +53,10 @@ function StakeMenu({ accountManager, pool, onUpdate }) {
           }}
         ></LoadButton>
         <LoadButton
-          text={"Harvest" + ( harvestable ? " " + getFormattedBalance(pool.harvest) : "") }
+          text={
+            "Harvest" +
+            (harvestable ? " " + getFormattedBalance(pool.harvest) : "")
+          }
           loadingText="Harvesting..."
           disabled={!accountManager.connected || !harvestable}
           onClick={async () => {

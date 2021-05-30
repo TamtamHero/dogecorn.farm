@@ -1,3 +1,6 @@
+import Dogecorn from "./contracts/Dogecorn.json";
+import Elon from "./contracts/Elon.json";
+
 export const pools = [
   {
     type: "doge",
@@ -56,7 +59,16 @@ export const infuraId = {
 
 export const network = "local";
 
-export const dogecorn_addr = pools[0].tokenAddress[network];
+const CHAIN_IDS = {
+  mainnet: 137,
+  testnet: 80001,
+  local: 80001,
+};
+
+export const chain_id = CHAIN_IDS[network];
+
+export const dogecorn_addr = Dogecorn.networks[chain_id].address;
+export const elon_addr = Elon.networks[chain_id].address;
 
 const multicall_instances = {
   mainnet: "0x11ce4B23bD875D7F5C6a31084f55fDe1e9A87507",
@@ -64,4 +76,4 @@ const multicall_instances = {
   local: "0xBDa34655B2Af92847872272947725A19F79fF652",
 };
 
-export const multicall = multicall_instances[network];
+export const multicall_addr = multicall_instances[network];

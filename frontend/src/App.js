@@ -7,14 +7,14 @@ import Launchpad from "./LaunchPad";
 import StatusBar from "./StatusBar";
 import AppExplanations from "./AppExplanations";
 import AccountManager from "./controller/accountManager";
-import React, { useState, useCallback } from "react";
+import refreshPools from "./controller/poolStates";
+import React, { useState, useCallback, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import config from "react-global-configuration";
 import configuration from "./config.json";
 import AnimatedWave from "./AnimatedWave.js";
 import { dogecorn_addr } from "./Configs.js";
-import { getFormattedBalance } from "./helpers.js";
 config.set(configuration);
 
 const accountManager = new AccountManager();
@@ -27,11 +27,27 @@ function App() {
 
   const updatePools = useCallback(() => {
     return new Promise(async (resolve) => {
-      let data = await accountManager.refreshPools();
+      let data = await refreshPools();
       console.log("pools refreshed !");
       setPools(data);
       resolve();
     });
+  }, []);
+
+  const updateStatus = useCallback(() => {
+    console.log(`+++ file: App.js - Line #38\n`);
+    if (accountManager.account) {
+      setAccount(accountManager.account);
+      accountManager.getMaticBalance().then((balance) => {
+        setMaticBalance(balance);
+      });
+      accountManager
+        .getTokenBalance(dogecorn_addr, accountManager.account)
+        .then((balance) => {
+          setDogeBalance(balance);
+        });
+      updatePools();
+    }
   }, []);
 
   return (
@@ -45,26 +61,7 @@ function App() {
           account={account}
           maticBalance={maticBalance}
           dogeBalance={dogeBalance}
-          onClick={() =>
-            accountManager.connect().then((account) => {
-              if (!account) {
-                toast.error(
-                  `Wrong network: Please select Matic/Polygon network first`
-                );
-              } else {
-                setAccount(account);
-                accountManager.getMaticBalance().then((balance) => {
-                  setMaticBalance(balance);
-                });
-                accountManager
-                  .getTokenBalance(dogecorn_addr, String(account))
-                  .then((balance) => {
-                    setDogeBalance(balance);
-                  });
-              }
-              updatePools();
-            })
-          }
+          onClick={() => accountManager.connect(updateStatus)}
         />
       </div>
       <div className="App-banner">

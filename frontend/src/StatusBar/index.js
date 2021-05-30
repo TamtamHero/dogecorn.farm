@@ -20,9 +20,9 @@ function StatusBar({ account, maticBalance, dogeBalance, onClick }) {
   useEffect(() => {
     if (account !== "Not connected") {
       setAccountAddr(
-        account[0].slice(0, 4) +
+        account.slice(0, 4) +
           "..." +
-          account[0].slice(account[0].length - 4, account[0].length)
+          account.slice(account.length - 4, account.length)
       );
     }
   }, [account]);
