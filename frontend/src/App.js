@@ -28,6 +28,7 @@ function App() {
   const updatePools = useCallback(() => {
     return new Promise(async (resolve) => {
       let data = await accountManager.refreshPools();
+      console.log("pools refreshed !");
       setPools(data);
       resolve();
     });

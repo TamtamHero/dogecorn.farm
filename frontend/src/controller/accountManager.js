@@ -78,8 +78,6 @@ class AccountManager {
           Multicall.abi,
           deployedNetwork && Multicall.networks[this.networkId].address
         );
-        // await this.refreshPools2();
-        await this.refreshPools();
         return this.accounts;
       }
     }
@@ -150,83 +148,63 @@ class AccountManager {
     ];
     let calls = [];
 
-    requests.map((request) => {
-      let calls_chunk = this.pools.earn.map((pool) => {
-        let target;
-        // ugly AF but :goodenough:
-        if (Array.isArray(request.target)) {
-          if (request.target.length === 2 && !pool.singleTokenPool) {
-            target = pool[request.target[1]][this.network];
-          } else {
-            target = pool[request.target[0]][this.network];
-          }
-        } else {
-          target = request.target;
-        }
-        const methodInterface = request.abi.find(
-          (f) => f.name === request.methodName
-        );
-        request.params = request.params.map((param) => {
-          if (typeof param === "string") {
-            if (param.startsWith("pool.")) {
-              param = param.replace("pool.", "");
-              param = pool[param];
+    calls = requests.reduce(
+      (acc, request) => [
+        ...acc,
+        ...this.pools.map((pool) => {
+          let target;
+          // ugly AF but :goodenough:
+          if (Array.isArray(request.target)) {
+            if (request.target.length === 2 && !pool.singleTokenPool) {
+              target = pool[request.target[1]][this.network];
+            } else {
+              target = pool[request.target[0]][this.network];
             }
+          } else {
+            target = request.target;
           }
-          return param;
-        });
-        return [
-          target.toLowerCase(),
-          this.web3.eth.abi.encodeFunctionCall(methodInterface, request.params),
-        ];
-      });
-
-      calls = [...calls, ...calls_chunk];
-    });
+          const methodInterface = request.abi.find(
+            (f) => f.name === request.methodName
+          );
+          request.params = request.params.map((param) => {
+            if (typeof param === "string") {
+              if (param.startsWith("pool.")) {
+                param = param.replace("pool.", "");
+                param = pool[param];
+              }
+            }
+            return param;
+          });
+          return [
+            target.toLowerCase(),
+            this.web3.eth.abi.encodeFunctionCall(
+              methodInterface,
+              request.params
+            ),
+          ];
+        }),
+      ],
+      []
+    );
 
     const { blockNumber, returnData } = await this.do_multicall(calls);
 
+    console.log(`BLOCK: ${blockNumber}`);
+
     for (let i = 0; i < returnData.length; i++) {
       let data = returnData[i];
-      const poolIndex = i % this.pools.earn.length;
-      const requestIndex = Math.floor(i / this.pools.earn.length);
+      const poolIndex = i % this.pools.length;
+      const requestIndex = Math.floor(i / this.pools.length);
       const field = requests[requestIndex].name;
       const extract = requests[requestIndex]["extract"];
       if (extract) {
         data = "0x" + data.slice(extract[0], extract[1]);
       }
       const bn = new BigNumber(data);
-      this.pools.earn[poolIndex][field] = bn.toString();
+      this.pools[poolIndex][field] = bn.toString();
     }
-    console.log(this.pools.earn);
-    return this.pools;
-  }
-
-  async refreshPools2() {
-    this.pools = {
-      ...this.pools,
-      earn: await Promise.all(
-        this.pools.earn.map(async (pool) => ({
-          ...pool,
-          balance: await this.getTokenBalance(
-            pool.tokenAddress[this.network],
-            String(this.accounts)
-          ),
-          tvl: await this.getTokenBalance(
-            pool.tokenAddress[this.network],
-            this.elon.options.address
-          ),
-          deposited: await this.getDepositedTokenBalance(pool.pid),
-          allowance: await this.getTokenAllowance(
-            pool.tokenAddress[this.network],
-            this.elon.options.address
-          ),
-          harvest: await this.getHarvestableBalance(pool.pid),
-        }))
-      ),
-    };
-    console.log(this.pools.earn);
-    return this.pools;
+    console.log(this.pools);
+    return [...this.pools];
   }
 
   async setTokenAllowance(tokenAddress) {
